@@ -1,0 +1,302 @@
+#+title: Equation-of-motion coupled-cluster for defects in solids
+#+author: Alejandro Gallo
+#+date: Toulouse, 22-01-2021 
+#+OPTIONS: H:2 toc:t t:nil
+#+OPTIONS: TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+
+
+
+
+
+* Solid state in a nutshell
+** Molecules
+** One Hydrogen atom
+
+
+- $\phi_{\mathrm{1s}}$
+
+#+call: make-hchain("-n 1 -k 0")
+
+#+latex_attr: :width 0.5\textwidth
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCAMJAFVVSAMAK.png]]
+
+
+** Two Hydrogen atoms (bonding)
+   
+- $\phi^{\mathrm{1s}}_1 + \phi^{\mathrm{1s}}_2$
+
+#+call: make-hchain("-n 2 -k 0")
+
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCAMRAFVVSAMAK.png]]
+
+** Two Hydrogen atoms (\textcolor{red}{anti}-bonding)
+- $\phi^{\mathrm{1s}}_1 {\color{red}-} \phi^{\mathrm{1s}}_2$
+#+call: make-hchain("-n 2 -k 1")
+
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCAMRAFVVSAMIK.png]]
+
+** 6 Hydrogen atoms (bonding)
+- $\sum_i \phi^{\mathrm{1s}}_i$
+
+#+call: make-hchain("-n 6 -k 0")
+
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCANJAFVVSAMAK.png]]
+
+** 6 Hydrogen atoms (\textcolor{red}{anti}-bonding)
+- $\sum_i (-1)^i \phi^{\mathrm{1s}}_i$
+
+#+call: make-hchain("-n 6 -k 3")
+
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCANRAFVVSAMYK.png]]
+
+** Bloch theorem
+** Band structures
+** A point defect in a band structure
+** Quantum chemistry \approx \Gamma-point
+
+alskd
+
+#+begin_src sh
+make hchain HCHAIN_FLAGS="-n 1 --ny 0          --nx 1           -k 0"
+#+end_src
+
+#+RESULTS:
+
+
+* Ground-state Coupled-Cluster
+** Exponential \textit{Ansatz}
+** Size-extensivity and size-consistency for solids
+
+* Equation-of-motion Coupled-cluster
+** In a nutshell?
+** Why not just CI?
+** Connection to linear response CC
+
+* CC4S
+** Pseudo-potentials
+** VASP
+** Our interface
+** Tensor frameworks
+
+* \(F\)-centers
+
+
+
+
+* Summary
+** Summary
+** Bibliography
+bibliographystyle:unsrt
+bibliography:main.bib,~/Documents/papers/bibfile.bib
+
+
+** Thank you
+
+#+begin_center
+Thank you!
+#+end_center
+
+[[file:figures/group2019.png]]
+
+* Scripts                                                          :noexport:
+  :properties:
+    :header-args: :comments both
+    :header-args:python: :tangle-mode (identity #o777)
+    :header-args:python+: :shebang #!/usr/bin/env python
+  :end:
+** Makefile
+
+#+headers: :tangle Makefile
+#+begin_src makefile
+define PYTHON
+nix-shell --run "python $(1)"
+endef
+
+define PIP
+nix-shell --run "pip $(1)"
+endef
+#+end_src
+
+** Nix shell
+
+If you used the nix package manager you can use the supplied
+shell to compile the examples.
+
+#+begin_src nix :tangle shell.nix
+
+{ pkgs ? import <nixpkgs> {} }:
+let
+    chbench = import ./nix/chbench.nix {};
+    my-python-packages = pypkgs: with pypkgs; [
+      matplotlib
+      numpy
+      pip
+      setuptools
+      chbench
+      tkinter
+      virtualenv
+    ];
+    my-python = pkgs.python37.withPackages my-python-packages;
+in
+pkgs.mkShell rec {
+  buildInputs = with pkgs; [
+    my-python
+    stdenv.cc.cc.lib
+  ];
+  shellHook = "
+  LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH;
+  ";
+}
+
+#+end_src
+
+and we need for chbench a nix package
+#+headers: :tangle nix/chbench.nix :mkdirp yes
+#+begin_src nix
+
+{pkgs ? import <nixpkgs> {}}:
+
+with pkgs.python37Packages;
+
+buildPythonPackage rec {
+  name = "chbench";
+  src = pkgs.fetchFromGitHub { owner = "alejandrogallo";
+                               repo = "chbench";
+                               rev = "f0d789d85fbaae831f1f9747d201ff4360d43e7e";
+                               sha256 = "01yjsqlgjhngzgy17kxbx3z4ywgcnjfkqx603hqg8c7fk4rxriam";
+                             };
+  propagatedBuildInputs = [ pytest numpy ase matplotlib ];
+}
+
+#+end_src
+
+
+
+** H Chain
+   :properties:
+    :header-args: :tangle scripts/make-hchain.py
+   :end:
+
+#+begin_src python
+import numpy as np
+import matplotlib.pyplot as plt
+from chbench.basis import *
+from chbench.visualization import *
+import chbench.parser.basis
+import sys
+import argparse
+
+plt.rcParams['xtick.bottom'] = False
+plt.rcParams['xtick.labelbottom'] = False
+plt.rcParams['ytick.left'] = False
+plt.rcParams['ytick.labelleft'] = False
+
+parser = argparse.ArgumentParser("")
+parser.add_argument("-o", help="Output file", type=str)
+parser.add_argument("-n", help="Number of hydrogens", type=int)
+parser.add_argument("-k", help="K", type=str)
+parser.add_argument("-a", help="Hidrogen bond length", type=float, default=0.74)
+parser.add_argument("--alpha", help="Alpha of orbital", type=float, default=2)
+parser.add_argument("--nx", help="nx of gaussian orbital", type=int, default=0)
+parser.add_argument("--ny", help="ny of gaussian orbital", type=int, default=0)
+parser.add_argument("--nz", help="nz of gaussian orbital", type=int, default=0)
+parser.add_argument("--circle",
+                    help="nz of gaussian orbital", action="store_true")
+args = parser.parse_args()
+
+N = args.n
+ki = float(eval(args.k))
+
+nx = 400
+ny = nx
+
+if args.circle:
+    hydrogens = np.array([[args.a * np.sin(2*np.pi / N * i),
+                           args.a * np.cos(2*np.pi / N * i),
+                           0] for i in range(N)])
+else:
+    hydrogens = np.array([[i * args.a, 0, 0] for i in range(N)])
+
+max_x = np.max(hydrogens[:,0])
+max_y = np.max(hydrogens[:,1])
+min_x = np.min(hydrogens[:,0])
+min_y = np.min(hydrogens[:,1])
+
+pad = 1
+xlims = [min_x - pad, max_x + pad]
+ylims = [min_y - pad, max_y + pad]
+
+def modulator(x, ki):
+    return np.exp(np.complex(0,1) * x * ki * 2 * np.pi / (args.a * N))
+
+s = GaussianOrbital(args.alpha, args.alpha, args.alpha,
+                    args.nx, args.ny, args.nz,
+                    [0, 0, 0])
+
+
+print('Building new coeffs')
+coefficients = [modulator(i * args.a, ki) for i in range(N)]
+
+print('Building new gaussians')
+gaussians = [s.translate(h) for h in hydrogens]
+
+print('Building new cgaussians')
+b = ContractedGaussian(coefficients, gaussians)
+
+print('Building new surface')
+surface = plot_gaussian_xy(xlims,
+                           ylims,
+                           nx,
+                           ny,
+                           lambda x,y,z: np.real(b(x,y,z)),
+                           z=0,
+                           fill=True)
+
+for i, g in enumerate(gaussians):
+    newg = g * coefficients[i]
+    gxlims = [i * args.a -1 , i * args.a +1] #[g.center[0] - 1, g.center[0] + 1]
+    plot_gaussian_xy(xlims, ylims,
+                     nx, ny,
+                     lambda x,y,z: np.real(newg(x,y,z)),
+                     z=0,
+                     fill=False,
+                     alpha=0.1, colors='k')
+
+plt.scatter(hydrogens[:,0], hydrogens[:,1], color='r')
+
+plt.xlabel(r'$k = \frac{{2\pi}}{{aN}}{k}$'.format(k=args.k))
+
+plt.savefig(args.o)
+print(args.o)
+#+end_src
+
+and for the makefile we need to do
+#+headers: :tangle Makefile
+#+begin_src makefile
+
+HCHAIN_FLAGS ?= -n 5 -k 0
+
+define hchain_hash
+$(shell echo "$(HCHAIN_FLAGS)" | base32 -w0  | tr -d '=')
+endef
+
+hchain: figures/hchain-base32-$(call hchain_hash).png scripts/make-hchain.py
+
+figures/hchain-base32-%.png: scripts/make-hchain.py
+	$(call PYTHON,./$< $(shell base32 -id <<< $*) -o $@)
+
+.PHONY: hchain
+
+#+end_src
+
+and the script for making
+#+name: make-hchain
+#+headers: :var flags="-n 1 -k 0"
+#+begin_src sh :results value file :exports results
+make hchain HCHAIN_FLAGS="$flags" | tail -1
+#+end_src
