@@ -1,9 +1,9 @@
 #+title: Equation-of-motion coupled-cluster for defects in solids
 #+author: Alejandro Gallo
 #+date: Toulouse, 22-01-2021 
+#+latex_header: \usepackage{xcolor}
 #+OPTIONS: H:2 toc:t t:nil
 #+OPTIONS: TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
-
 
 
 
@@ -11,13 +11,12 @@
 * Solid state in a nutshell
 ** Molecules
 ** One Hydrogen atom
+Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 
-
-- $\phi_{\mathrm{1s}}$
+- $\phi^\mathrm{1s}$
 
 #+call: make-hchain("-n 1 -k 0")
 
-#+latex_attr: :width 0.5\textwidth
 #+RESULTS:
 [[file:figures/hchain-base32-FVXCAMJAFVVSAMAK.png]]
 
@@ -32,7 +31,9 @@
 [[file:figures/hchain-base32-FVXCAMRAFVVSAMAK.png]]
 
 ** Two Hydrogen atoms (\textcolor{red}{anti}-bonding)
+
 - $\phi^{\mathrm{1s}}_1 {\color{red}-} \phi^{\mathrm{1s}}_2$
+
 #+call: make-hchain("-n 2 -k 1")
 
 #+RESULTS:
@@ -44,7 +45,7 @@
 #+call: make-hchain("-n 6 -k 0")
 
 #+RESULTS:
-[[file:figures/hchain-base32-FVXCANJAFVVSAMAK.png]]
+[[file:figures/hchain-base32-FVXCANRAFVVSAMAK.png]]
 
 ** 6 Hydrogen atoms (\textcolor{red}{anti}-bonding)
 - $\sum_i (-1)^i \phi^{\mathrm{1s}}_i$
@@ -53,6 +54,14 @@
 
 #+RESULTS:
 [[file:figures/hchain-base32-FVXCANRAFVVSAMYK.png]]
+** 6 Hydrogen atoms (\textcolor{red}{anti}-bonding)
+
+- $\sum_i (-1)^i \phi^{\mathrm{1s}}_i$
+
+#+call: make-hchain("-n 6 -k 3 --circle")
+
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCANRAFVVSAMZAFUWWG2LSMNWGKCQ.png]]
 
 ** Bloch theorem
 ** Band structures
@@ -195,6 +204,7 @@ plt.rcParams['xtick.bottom'] = False
 plt.rcParams['xtick.labelbottom'] = False
 plt.rcParams['ytick.left'] = False
 plt.rcParams['ytick.labelleft'] = False
+plt.gca().set_aspect('equal')
 
 parser = argparse.ArgumentParser("")
 parser.add_argument("-o", help="Output file", type=str)
@@ -269,7 +279,7 @@ for i, g in enumerate(gaussians):
 
 plt.scatter(hydrogens[:,0], hydrogens[:,1], color='r')
 
-plt.xlabel(r'$k = \frac{{2\pi}}{{aN}}{k}$'.format(k=args.k))
+#plt.xlabel(r'$k = \frac{{2\pi}}{{aN}}{k}$'.format(k=args.k))
 
 plt.savefig(args.o)
 print(args.o)
@@ -286,6 +296,7 @@ $(shell echo "$(HCHAIN_FLAGS)" | base32 -w0  | tr -d '=')
 endef
 
 hchain: figures/hchain-base32-$(call hchain_hash).png scripts/make-hchain.py
+	@printf $<
 
 figures/hchain-base32-%.png: scripts/make-hchain.py
 	$(call PYTHON,./$< $(shell base32 -id <<< $*) -o $@)
@@ -296,7 +307,7 @@ figures/hchain-base32-%.png: scripts/make-hchain.py
 
 and the script for making
 #+name: make-hchain
-#+headers: :var flags="-n 1 -k 0"
+#+headers: :var flags="-n 1 -k 0" :tangle no
 #+begin_src sh :results value file :exports results
 make hchain HCHAIN_FLAGS="$flags" | tail -1
 #+end_src
