@@ -5,15 +5,13 @@
 #+OPTIONS: H:2 toc:t t:nil
 #+OPTIONS: TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
 
-
-
-
 * Solid state in a nutshell
-** Molecules
 ** One Hydrogen atom
 Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 
-- $\phi^\mathrm{1s}$
+\begin{equation*}
+\phi^\mathrm{1s}
+\end{equation*}
 
 #+call: make-hchain("-n 1 -k 0")
 
@@ -23,7 +21,12 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 
 ** Two Hydrogen atoms (bonding)
    
-- $\phi^{\mathrm{1s}}_1 + \phi^{\mathrm{1s}}_2$
+\begin{equation*}
+\phi^{\mathrm{1s}}_{\color{red} 0} + \phi^{\mathrm{1s}}_{\color{red} 1}
+= e^{i {\color{red} 0} a k } \phi^{\mathrm{1s}}_{\color{red} 0}
++ e^{i {\color{red} 1} a k } \phi^{\mathrm{1s}}_{\color{red} 1}
+\quad k = 0
+\end{equation*}
 
 #+call: make-hchain("-n 2 -k 0")
 
@@ -32,7 +35,12 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 
 ** Two Hydrogen atoms (\textcolor{red}{anti}-bonding)
 
-- $\phi^{\mathrm{1s}}_1 {\color{red}-} \phi^{\mathrm{1s}}_2$
+\begin{equation*}
+\phi^{\mathrm{1s}}_{\color{red} 0} - \phi^{\mathrm{1s}}_{\color{red} 1}
+= e^{i {\color{red} 0} a k } \phi^{\mathrm{1s}}_{\color{red} 0}
+- e^{i {\color{red} 1} a k } \phi^{\mathrm{1s}}_{\color{red} 1}
+\quad k = \frac{\pi}{a}
+\end{equation*}
 
 #+call: make-hchain("-n 2 -k 1")
 
@@ -40,7 +48,11 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 [[file:figures/hchain-base32-FVXCAMRAFVVSAMIK.png]]
 
 ** 6 Hydrogen atoms (bonding)
-- $\sum_i \phi^{\mathrm{1s}}_i$
+\begin{equation*}
+  \sum_{\color{red} j} \phi^{\mathrm{1s}}_{\color{red} j}
+= \sum_{\color{red} j} e^{i{\color{red} j} a k }\phi^{\mathrm{1s}}_{\color{red} j}
+\quad k = 0
+\end{equation*}
 
 #+call: make-hchain("-n 6 -k 0")
 
@@ -48,24 +60,204 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 [[file:figures/hchain-base32-FVXCANRAFVVSAMAK.png]]
 
 ** 6 Hydrogen atoms (\textcolor{red}{anti}-bonding)
-- $\sum_i (-1)^i \phi^{\mathrm{1s}}_i$
+
+\begin{equation*}
+  \sum_{\color{red} j} (-1)^{\color{red} j} \phi^{\mathrm{1s}}_{\color{red} j}
+= \sum_{\color{red} j} e^{i{\color{red} j} a k }\phi^{\mathrm{1s}}_{\color{red} j}
+\quad k = \frac{\pi}{a}
+\end{equation*}
 
 #+call: make-hchain("-n 6 -k 3")
 
 #+RESULTS:
 [[file:figures/hchain-base32-FVXCANRAFVVSAMYK.png]]
-** 6 Hydrogen atoms (\textcolor{red}{anti}-bonding)
+** Bloch's theorem: motivation
 
-- $\sum_i (-1)^i \phi^{\mathrm{1s}}_i$
+*** Column 1
+    :properties:
+      :beamer_col: 0.7
+    :end:
+    
+- We want to model a solid
+- Edge effects can be neglected
+  - In the thermodynamical limit, the ``molecule'' is efectively
+    infinite.
+- Periodic boundary conditions \Leftarrow Finite systems
+  #+call: make-hchain("-n 6 -k 3 --circle")
 
-#+call: make-hchain("-n 6 -k 3 --circle")
+  #+attr_latex: :width 0.5\textwidth
+  #+RESULTS:
+  [[file:figures/hchain-base32-FVXCANRAFVVSAMZAFUWWG2LSMNWGKCQ.png]]
+- Translational invariance \Rightarrow
+  How do the /symmetry adapted/ molecular orbitals look like?
+
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.3
+    :end:
+
+#+call: make-hchain("-n 6 -k 3")
+
+#+attr_latex: :options angle=90
+#+attr_latex: :height 0.5\textheight
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCANRAFVVSAMYK.png]]
+
+** Bloch's theorem: stage
+
+*** Column 1
+    :properties:
+    :beamer_col: 0.7
+    :end:
+
+- Bravais lattice $\mathcal{B} = \{ R \}$
+- Translation operator $\hat T(R) = e^{i R \cdot \hat k }$
+- Group of translation is commutative
+  - one dimensional irreps!
+  - orbitals are eigenvectors of $\hat T (R)$ for all $R\in \mathcal{B}$
+  - Bloch's theorem:
+    \[
+       \hat T(R) \psi = e^{i R \cdot k} \psi
+       \quad k \in \mathbb{R}^3
+    \]
+  - Bloch orbitals $\{ \psi_k \}$ (symmetry adapted)
+
+
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.3
+    :end:
+
+#+headers: :cache yes
+#+begin_src asymptote :file figures/simple-lattice.pdf
+unitsize(1cm);
+
+int n = 4;
+
+for (int i=0; i<n; ++i) {
+for (int j=0; j<n; ++j) {
+  dot((i,j));
+}
+}
+
+draw((0, 0) -- (1, 3), black, Arrow);
+draw((0, 0) -- (3, 1), black, Arrow);
+#+end_src
+
+#+attr_latex: :height 1\textwidth
+#+attr_org: :width 300px
+#+RESULTS[119c881b4f9b3a606916564b00b3cb45ac73d321]:
+[[file:figures/simple-lattice.pdf]]
+
+
+
+** Band structures: Hydrogen chain
+
+Linear combination of atomic orbitals:
+\begin{equation*}
+\psi_{k, \mathrm{1s}}
+  = \sum_{\color{red} j} e^{ik {\color{red} j} a } \phi^{\mathrm{1s}}_{\color{red} j}
+\end{equation*}
+
+#+beamer: \only<1>{
+#+call: make-hchain("-n 1 -k 0 --ny 0     ")
 
 #+RESULTS:
-[[file:figures/hchain-base32-FVXCANRAFVVSAMZAFUWWG2LSMNWGKCQ.png]]
+[[file:figures/hchain-base32-FVXCAMJAFVVSAMBAFUWW46JAGAQCAIBAEAFA.png]]
 
-** Bloch theorem
-** Band structures
-** A point defect in a band structure
+#+beamer: }
+#+beamer: \only<2>{
+#+call: make-hchain("-n 2 -k 0 --ny 0     ")
+
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCAMRAFVVSAMBAFUWW46JAGAQCAIBAEAFA.png]]
+
+#+beamer: }
+#+beamer: \only<3>{
+#+call: make-hchain("-n 3 -k 0 --ny 0     ")
+
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCAMZAFVVSAMBAFUWW46JAGAQCAIBAEAFA.png]]
+
+#+beamer: }
+#+beamer: \only<4>{
+#+call: make-hchain("-n 4 -k 0 --ny 0     ")
+
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCANBAFVVSAMBAFUWW46JAGAQCAIBAEAFA.png]]
+
+#+beamer: }
+#+beamer: \only<5>{
+#+caption: asdf
+#+call: make-hchain("-n 5 -k 0 --ny 0     ")
+
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCANJAFVVSAMBAFUWW46JAGAQCAIBAEAFA.png]]
+
+#+beamer: }
+
+
+** Defects and super-cells
+
+*** Column 1
+    :properties:
+    :beamer_col: 0.5
+    :end:
+    
+
+
+
+\pause
+- unit cell with a defect
+#+headers: :var n=2 repeat=1
+#+name: make-defect-in-lattice
+#+begin_src asymptote :file figures/defect-images.pdf
+unitsize(1cm);
+
+for (int j=0; j<n; ++j) {
+for (int i=0; i<n; ++i) {
+  dot((i,j));
+  if (i > 0)                  draw((i,j) -- (i-1, j));
+  if (j > 0)                  draw((i,j) -- (i, j-1));
+  if (repeat == 1)
+  if (i < n - 1 && j < n - 1) dot((i+.5, j + .5), red);
+}
+}
+
+if (repeat == 0) dot((n / 2 - 0.5, n/2 - 0.5), red);
+
+#+end_src
+
+#+attr_org: :width 300px
+#+attr_latex: :width 0.2\textwidth
+#+RESULTS: make-defect-in-lattice
+[[file:figures/defect-images.pdf]]
+
+\pause
+- repeating it
+#+call: make-defect-in-lattice(n=6) :file figures/defect-images-6.pdf
+
+#+attr_org: :width 300px
+#+attr_latex: :width 0.8\textwidth
+#+RESULTS:
+[[file:figures/defect-images-6.pdf]]
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.5
+    :end:
+
+\pause
+- Supercell
+#+call: make-defect-in-lattice(n=6, repeat=0) :file figures/defect-images-6-no-repeat.pdf
+
+#+attr_org: :width 300px
+#+attr_latex: :width 1\textwidth
+#+RESULTS:
+[[file:figures/defect-images-6-no-repeat.pdf]]
+
 ** Quantum chemistry \approx \Gamma-point
 * Ground-state Coupled-Cluster
 ** Exponential \textit{Ansatz}
@@ -178,7 +370,7 @@ buildPythonPackage rec {
 
 ** H Chain
    :properties:
-    :header-args: :tangle scripts/make-hchain.py
+    :header-args+: :tangle scripts/make-hchain.py
    :end:
 
 #+begin_src python
@@ -231,6 +423,15 @@ pad = 1
 xlims = [min_x - pad, max_x + pad]
 ylims = [min_y - pad, max_y + pad]
 
+#+end_src
+
+and we put the modulator function which is just
+
+$$
+e^{i x k_i \frac{2 \pi}{aN}}
+$$
+
+#+begin_src python
 def modulator(x, ki):
     return np.exp(np.complex(0,1) * x * ki * 2 * np.pi / (args.a * N))
 
@@ -271,6 +472,7 @@ plt.scatter(hydrogens[:,0], hydrogens[:,1], color='r')
 
 #plt.xlabel(r'$k = \frac{{2\pi}}{{aN}}{k}$'.format(k=args.k))
 
+plt.gcf().tight_layout()
 plt.savefig(args.o)
 print(args.o)
 #+end_src
