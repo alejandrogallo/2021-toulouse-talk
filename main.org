@@ -67,16 +67,6 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 ** Band structures
 ** A point defect in a band structure
 ** Quantum chemistry \approx \Gamma-point
-
-alskd
-
-#+begin_src sh
-make hchain HCHAIN_FLAGS="-n 1 --ny 0          --nx 1           -k 0"
-#+end_src
-
-#+RESULTS:
-
-
 * Ground-state Coupled-Cluster
 ** Exponential \textit{Ansatz}
 ** Size-extensivity and size-consistency for solids
