@@ -261,39 +261,119 @@ if (repeat == 0) dot((n / 2 - 0.5, n/2 - 0.5), red);
 ** Quantum chemistry \approx \Gamma-point
 * Ground-state Coupled-Cluster
 ** Exponential \textit{Ansatz}
-** Size-extensivity and size-consistency for solids
+- One of the most successful theories in quantum chemistry
+- Restrict to singles and doubles excitations for cluster operator \( \hat T \)
+  \begin{equation*}
+    \hat T
+      = \underbrace{
+          \sum_{ai}
+            t^a_i
+            c^\dagger_a
+            c_i
+         }_{T_1}
+      + \underbrace{
+          \frac{1}{4}\sum_{abij}
+            t^{ab}_{ij}
+            c^\dagger_a
+            c^\dagger_b
+            c_j
+            c_i
+        }_{T_2}
+  \end{equation*}
+- Suppose a single-determinant as a reference  \( |0\rangle \)
+  \begin{equation*}
+    |\mathrm{CC}\rangle = e^{\hat{T}} |0\rangle
+  \end{equation*}
+- Note: there are many higher order excitation contributions to the Wavefunction
+\begin{equation*}
+e^{\hat{T}}
+  = \left( 1
+    + \underbrace{T_1 + T_2 + \frac{1}{2!} T_1^2}_{\mathrm{CISD}}
+    + \frac{1}{2!} \left\{ \underbrace{T_2^2}_\mathrm{quad}
+                         + \underbrace{T_1 T_2 + T_2 T_1}_{\mathrm{triples}} \right\}
+    + \underbrace{\ldots}_\mathrm{t, q, \ldots}
+    \right)
+\end{equation*}
 
+** Size-extensivity
+
+- A size-extensive method provides results that scale linearly with
+  the size of the system.
+- Dyson proved that matter is stable
+  [[cite:Stability.of.MaFreema1967,Stability.of.MaLenard1968][Dyson 1967-68]]
+  - In particular, for charged fermions a lower bound proportional to
+    $N$ was found analytically.
+- Essential property for solids, can be rephrased as follows
+  #+begin_quote
+  A size-extensive method does not include additional error in the
+  energy \textcolor{red}{by increasing} the size of the system.
+  #+end_quote
+
+** CCSD equations
+- The Schrödinger equation is non-linear now
+  \begin{equation*}
+  \hat H e^{\hat T} |0\rangle = E_{\mathrm{CC}} e^{\hat T}|0\rangle
+  \quad \Rightarrow \quad
+  \underbrace{e^{-\hat T} \hat H e^{\hat T}}_{\bar{H}} |0\rangle = E_{\mathrm{CC}} |0\rangle
+  \end{equation*}
+- Solve it projectively
+
+\begin{align*}
+\begin{matrix}
+  E_{\mathrm{CC}} &=& \langle{0}| \bar{H} |{0}\rangle
+  &
+  =
+  &
+  \frac{1}{4}
+  V^{{\color{red}ij}}_{{\color{red}ab}} T^{{\color{red}ab}}_{{\color{red}ij}} + \ldots
+  \\
+  0  &=& \langle{0}|
+          \hat{a}^{\dagger}_{i}\hat{a}_{a} \bar{H}
+        |{0}\rangle
+  &
+  =
+  &
+    f^{a}_{\color{red} b} t^{{\color{red}b}}_{i}
+  - f^{j}_{\color{red} i} t^{a}_{{\color{red}j}}
+  + \ldots
+ \\
+  0  &=& \langle{0}|
+          \hat{a}^{\dagger}_{i}\hat{a}^{\dagger}_{j}
+          \hat{a}_{b} \hat{a}_{a}
+        \bar{H}
+        |{0}\rangle
+  &
+  =
+  &
+    f^{b}_{\color{red} c} t^{a{\color{red}c}}_{ij}
+  + f^{a}_{\color{red} c} t^{{\color{red}c}b}_{ij}
+  + \ldots
+\end{matrix}
+\end{align*}
+
+- Start with an intial guess of $t^{ab}_{ij} = V^{ab}_{ij}$ and iterate (and hope for the best)
+
+- Typical scaling $\mathcal{O}(N^6)$
 * Equation-of-motion Coupled-cluster
 ** In a nutshell?
 ** Why not just CI?
 ** Connection to linear response CC
-
-* CC4S
+* ~CC4S~
 ** Pseudo-potentials
 ** VASP
 ** Our interface
 ** Tensor frameworks
-
 * \(F\)-centers
-
-
-
-
 * Summary
 ** Summary
 ** Bibliography
 bibliographystyle:unsrt
 bibliography:main.bib,~/Documents/papers/bibfile.bib
-
-
 ** Thank you
-
 #+begin_center
 Thank you!
 #+end_center
-
 [[file:figures/group2019.png]]
-
 * Scripts                                                          :noexport:
   :properties:
     :header-args: :comments both
