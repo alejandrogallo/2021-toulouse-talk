@@ -356,7 +356,35 @@ e^{\hat{T}}
 - Typical scaling $\mathcal{O}(N^6)$
 * Equation-of-motion Coupled-cluster
 ** In a nutshell?
-** Why not just CI?
+#+header: :file figures/eom-nutshell.pdf :border 1em
+#+header: :packages '(("" "tikz")) :cache yes
+#+begin_src latex :results file raw
+  % Define block styles
+  \usetikzlibrary{shapes,arrows,positioning}
+  \begin{tikzpicture}%
+  [ :circle/.style={draw, circle}
+  , :rect/.style={draw, rectangle}
+  , node distance=2cm
+  ]
+  \node[:rect                   ] (H) {$\hat H$};
+  \node[:circle, red, right of=H] (T) {$\hat T$};
+  \node[:rect, blue, below of=T] (ST) {$\bar H$};
+  \node[:rect, blue, right of=ST] (CI) {$\{\hat R, E_R\}$};
+  \draw[->] (H) edge node [above] {CC} (T);
+  \draw[->] (T) edge (ST);
+  \draw[->] (ST) edge node [above] {CI} (CI);
+  \end{tikzpicture}
+  #+end_src
+
+#+attr_org: :width 300px
+#+RESULTS[91fed7feacf53a3bad8f877a6e70e23f8048ecd8]:
+[[file:figures/eom-nutshell.pdf]]
+
+#+beamer:\pause
+- So it's just CI right? @@beamer:\pause@@(Yes and no!)
+
+** Why not just (truncated) CI?
+
 ** Connection to linear response CC
 * ~CC4S~
 ** Pseudo-potentials
