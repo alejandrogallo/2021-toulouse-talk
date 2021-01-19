@@ -355,7 +355,7 @@ e^{\hat{T}}
 
 - Typical scaling $\mathcal{O}(N^6)$
 * Equation-of-motion Coupled-cluster
-** In a nutshell?
+** In a nutshell
 #+header: :file figures/eom-nutshell.pdf :border 1em
 #+header: :packages '(("" "tikz")) :cache yes
 #+begin_src latex :results file raw
@@ -377,15 +377,90 @@ e^{\hat{T}}
   #+end_src
 
 #+attr_org: :width 300px
+#+attr_latex: :width 0.6\textwidth
 #+RESULTS[91fed7feacf53a3bad8f877a6e70e23f8048ecd8]:
 [[file:figures/eom-nutshell.pdf]]
 
 #+beamer:\pause
+- Excited states
+  \begin{equation*}
+    \hat{R} = r_{0}
+            + \sum_{a,i} r^a_i \hat{a}^{\dagger}_{a}\hat{a}_{i}
+            + \frac{1}{4}
+              \sum_{a,b,i,j}
+                r^{ab}_{ij}
+                \hat{a}^{\dagger}_{a} \hat{a}^{\dagger}_{b}
+                \hat{a}_{j}         \hat{a}_{i}
+            + \ldots
+  \end{equation*}
+\begin{equation*}
+|R\rangle = \hat R e^{\hat T} |0\rangle
+\end{equation*}
+#+beamer:\pause
 - So it's just CI right? @@beamer:\pause@@(Yes and no!)
-
+  
 ** Why not just (truncated) CI?
 
-** Connection to linear response CC
+- Dressing a Hamiltonian has many consequences
+  - Transocorrelated hamiltonians (Jastrow)
+  - Effective Hamiltonians in multi-reference
+  - In the extreme case, even you can understand the $\hat T_{\mathrm{FCC}}$ as a dressing
+    that renders the single-reference determinant \( |0\rangle \)
+    as having the exact many-body energy
+    \begin{equation*}
+    \bar H |0\rangle = E_{\mathrm{FCI}} |0\rangle
+    \end{equation*}
+  - Taylor the zeros of your many body Hamiltonian:
+    \begin{equation*}
+    \bar H
+      = \left(\begin{matrix}
+          E_\mathrm{0}  & ?            & ?   \\
+        0              & \mathrm{SS}  & \mathrm{SD} \\
+        0              & \mathrm{DS}  & \mathrm{DD} \\
+        \end{matrix}\right)
+    \end{equation*}
+- \( n \)-bodyness
+  - No dressing \Rightarrow with S and D we use all ingredients of \( \hat H \)
+  - With dressing with EOM-CCSD we ignore some \( n \)-body terms
+    of the 6-body Hamiltonian
+    \begin{equation*}
+      \left\langle \begin{matrix}a_1 & \cdots &  a_6 \\ i_1 & \cdots & i_6 \end{matrix} \right| \bar
+         H
+      \left| 0 \right\rangle
+      =
+      V^{{\color{red}i}{\color{blue}j}}_{{\color{green}a}{\color{orange}b}}
+      T^{a_{1}a_{2}}_{{\color{red}i}i_{1}}
+      T^{a_{3}a_{4}}_{{\color{blue}j}i_{2}}
+      T^{{\color{green}a}a_{5}}_{i_{3}i_{4}}
+      T^{{\color{orange}b}a_{6}}_{i_{5}i_{6}}
+    \end{equation*}
+#+beamer:\pause
+- BUT, not size-extensive@@beamer:\pause@@\textcolor{red}{-ish}!!
+
+** Connection to linear response CC: size-extensivity
+- Temporal disturbance \( \hat H (t) = \hat H + \hat{V} e^{-i \omega t} + \hat{V}^\dagger e^{+i \omega t} \)
+- Linear response \( \hat T(t) = \hat T + \hat R e^{-i \omega t} + \hat{R}^\dagger e^{+i\omega t}\)
+- \( \hat H |\Psi\rangle = i \partial_t |\Psi\rangle  \)
+  with
+  \( |\Psi\rangle(t) = e^{-i E_{\mathrm{CC}}t} e^{\hat T(t)} |0\rangle \)
+  - It's still an exponential ansatz
+  - Size extensivity
+- Substitute everything in SE and keep only \textcolor{red}{linear terms}
+  in \( e^{-i\omega t} \) \Rightarrow equation for \( \hat R \)
+  \begin{equation*}
+    \hat H \hat R e^{\hat T} |0\rangle
+    = (E_{\mathrm{CC}} + \omega) \hat R e^{\hat T} |0\rangle
+  \end{equation*}
+- For this one uses the fact that
+  \begin{equation*}
+    [\hat T, \hat R ] = 0
+  \end{equation*}
+  so it suffices if \( \hat R \) has the same form of particle-hole
+  creation operators.
+
+
+
+
 * ~CC4S~
 ** Pseudo-potentials
 ** VASP
