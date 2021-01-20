@@ -1,13 +1,66 @@
 #+title: Equation-of-motion coupled-cluster for defects in solids
 #+author: Alejandro Gallo
-#+date: Toulouse, 22-01-2021 
+#+date: Toulouse, 21-01-2021 
 #+latex_header: \usepackage{xcolor}
+#+latex_header: \usepackage{booktabs}
 #+OPTIONS: H:2 toc:t t:nil
 #+OPTIONS: TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
 
+* Presentation
+** Who are we
+
+*** Column 1
+    :properties:
+    :beamer_col: 0.5
+    :end:
+
+- Andreas Grüneis group.
+  - Application of quantum chemical methods to solid state
+    systems.
+  - CCSD, CCSD(T) and EOM-CCSD
+  - Embedding schemes and orbital space compatification cite:doi:10.1063/5.0036363
+  - Basis-set extrapolation techniques cite:Duality.of.RingIrmler2019
+  - Tensor decompositions cite:Low.rank.factorHummel2017
+  - \textcolor{orange}{Excited states of defects} cite:2010.15071v1
+  - Molecule-surface interactions cite:PeriodicQuantuTheodo
+  - Finite-size corrections (CCSD) cite:Applying.the.CoGruber2018
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.5
+    :end:
+
+[[file:figures/tuwien.png]]
+[[file:figures/group2019.png]]
+
+
+
+
 * Solid state in a nutshell
+** Setting the stage
+
+*** Column 1
+    :properties:
+    :beamer_col: 0.5
+    :end:
+
+- periodic boundary conditions
+- \( k \)-point sampling
+- Bloch's theorem
+- Supercell approach
+
+
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.5
+    :end:
+
+cite:SolidsAndSurf1988Hoffmann
+#+attr_latex: :height 0.8\textheight
+[[file:figures/hoffmann-cover.jpg]]
+
 ** One Hydrogen atom
-Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 
 \begin{equation*}
 \phi^\mathrm{1s}
@@ -15,6 +68,7 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 
 #+call: make-hchain("-n 1 -k 0")
 
+#+attr_latex: :height 0.6\textheight
 #+RESULTS:
 [[file:figures/hchain-base32-FVXCAMJAFVVSAMAK.png]]
 
@@ -27,9 +81,11 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 + e^{i {\color{red} 1} a k } \phi^{\mathrm{1s}}_{\color{red} 1}
 \quad k = 0
 \end{equation*}
+where $a$ is H-H bond length
 
 #+call: make-hchain("-n 2 -k 0")
 
+#+attr_latex: :height 0.6\textheight
 #+RESULTS:
 [[file:figures/hchain-base32-FVXCAMRAFVVSAMAK.png]]
 
@@ -44,6 +100,7 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 
 #+call: make-hchain("-n 2 -k 1")
 
+#+attr_latex: :height 0.6\textheight
 #+RESULTS:
 [[file:figures/hchain-base32-FVXCAMRAFVVSAMIK.png]]
 
@@ -56,6 +113,7 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 
 #+call: make-hchain("-n 6 -k 0")
 
+#+attr_latex: :height 0.6\textheight
 #+RESULTS:
 [[file:figures/hchain-base32-FVXCANRAFVVSAMAK.png]]
 
@@ -69,21 +127,85 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
 
 #+call: make-hchain("-n 6 -k 3")
 
+#+attr_latex: :height 0.6\textheight
 #+RESULTS:
 [[file:figures/hchain-base32-FVXCANRAFVVSAMYK.png]]
-** Bloch's theorem: motivation
+
+** 6 Hydrogen atoms (\textcolor{red}{between}-bonding)
+
+\begin{equation*}
+  \sum_{\color{red} j} (-1)^{\color{red} j} \phi^{\mathrm{1s}}_{\color{red} j}
+= \sum_{\color{red} j} e^{i{\color{red} j} a k }\phi^{\mathrm{1s}}_{\color{red} j}
+\quad k = \frac{\pi}{2a} \end{equation*}
+
+#+call: make-hchain("-n 6 -k 1.5")
+
+#+attr_latex: :height 0.6\textheight
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCANRAFVVSAMYK.png]]
+
+** What is a solid?
+
+*** Column 1
+  :properties:
+  :beamer_col: 0.5
+  :end:
+
+- Infinite molecule \( \approx 10^{23} \)
+
+- Model through a finite system, finite box
+- Key fact
+  - Create repetitions of the cell \Leftrightarrow sample \( k \)-points
+  - Thermodynamical limit
+    \Leftrightarrow simulate a huge cell
+    \Leftrightarrow sample fine \( k \)-point grid
+
+
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.5
+    :end:
+
+#+name: simple-lattice-crystal
+#+headers: :cache yes
+#+begin_src asymptote :file figures/simple-lattice-crystal.pdf
+unitsize(1cm);
+
+int n = 4;
+
+for (int i=0; i<n; ++i) {
+for (int j=0; j<n; ++j) {
+  dot((i,j));
+  if (i > 0)                  draw((i,j) -- (i-1, j));
+  if (j > 0)                  draw((i,j) -- (i, j-1));
+  if (i < n - 1 && j < n - 1) {
+     dot((i+.5, j + .5), green);
+     dot((i+.65, j + .75), red);
+     dot((i+.75, j + .25), blue);
+  }
+
+}
+}
+#+end_src
+
+#+attr_latex: :height 0.6\textheight
+#+RESULTS[d2f158e44f5ccf804927cd7978ae0317e560af8c]: simple-lattice-crystal
+[[file:figures/simple-lattice-crystal.pdf]]
+
+
+** Bloch's theorem: infinite hydrogen chain
 
 *** Column 1
     :properties:
       :beamer_col: 0.7
     :end:
     
-- We want to model a solid
 - Edge effects can be neglected
   - In the thermodynamical limit, the ``molecule'' is efectively
     infinite.
 - Periodic boundary conditions \Leftarrow Finite systems
-  #+call: make-hchain("-n 6 -k 3 --circle")
+  #+call: make-hchain("-n 10 -k 5 --circle")
 
   #+attr_latex: :width 0.5\textwidth
   #+RESULTS:
@@ -97,7 +219,7 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
     :beamer_col: 0.3
     :end:
 
-#+call: make-hchain("-n 6 -k 3")
+#+call: make-hchain("-n 10 -k 5")
 
 #+attr_latex: :options angle=90
 #+attr_latex: :height 0.5\textheight
@@ -111,11 +233,12 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
     :beamer_col: 0.7
     :end:
 
-- Bravais lattice $\mathcal{B} = \{ R \}$
-- Translation operator $\hat T(R) = e^{i R \cdot \hat k }$
+- Bravais lattice \(\mathcal{B} = \{ R \}\)
+- Translation operator \(\hat T(R) = e^{i R \cdot \hat k }\)
 - Group of translation is commutative
   - one dimensional irreps!
-  - orbitals are eigenvectors of $\hat T (R)$ for all $R\in \mathcal{B}$
+  - eigenvectors of \( \hat{H} \)
+    orbitals are eigenvectors of $\hat T (R)$ for all $R\in \mathcal{B}$
   - Bloch's theorem:
     \[
        \hat T(R) \psi = e^{i R \cdot k} \psi
@@ -129,6 +252,7 @@ Adapted partially from [[cite:SolidsAndSurf1988Hoffmann][Hoffmann 1988]]
     :properties:
     :beamer_col: 0.3
     :end:
+
 
 #+headers: :cache yes
 #+begin_src asymptote :file figures/simple-lattice.pdf
@@ -151,54 +275,136 @@ draw((0, 0) -- (3, 1), black, Arrow);
 #+RESULTS[119c881b4f9b3a606916564b00b3cb45ac73d321]:
 [[file:figures/simple-lattice.pdf]]
 
+#+attr_latex: :height 1\textwidth
+[[file:figures/simple-lattice-crystal.pdf]]
 
 
-** Band structures: Hydrogen chain
+** They were Bloch's all along!
 
-Linear combination of atomic orbitals:
-\begin{equation*}
+*** Column 1
+    :properties:
+    :beamer_col: 0.7
+    :end:
+
+\begin{align*}
 \psi_{k, \mathrm{1s}}
-  = \sum_{\color{red} j} e^{ik {\color{red} j} a } \phi^{\mathrm{1s}}_{\color{red} j}
+  &= \sum_{\color{red} j} e^{ik {\color{red} j} a } \phi^{\mathrm{1s}}_{\color{red} j}
+  \\
+  \hat T(ma) \psi_{k, 1s}(r)
+  &=
+  \sum_{\color{red} j}
+    e^{ik {\color{red} j} a }
+    \phi^{\mathrm{1s}}_{\color{red} j} ( r + m a)
+  \\
+  &= e^{i k m a}
+  \sum_{\color{red} j}
+    e^{ik {\color{red} j} a }
+    e^{-i k m a}
+    \phi^{\mathrm{1s}}_{\color{red} j} ( r + m a)
+  \\
+  &= e^{i k m a}
+  \sum_{\color{red} j}
+    e^{ik {\color{red} j} a }
+    e^{-i k m a}
+    \phi^{\mathrm{1s}}_{\color{red} j - m} ( r )
+  \\
+  &= e^{i k m a}
+  \sum_{\color{red} j}
+    e^{ik {\color{red} (j  - m )} a }
+    \phi^{\mathrm{1s}}_{\color{red} j - m} ( r )
+  \\
+  &= e^{i k m a}
+     \psi_{k, 1s} (r)
+\end{align*}
+
+
+
+
+#+beamer:\pause
+- Attention! Change \( k \to n \frac{\pi}{a} + k \) for all \( n\in \mathbb{Z} \)
+  and you get the same.
+
+    
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.4
+    :end:
+
+
+**** Bloch
+\begin{equation*}
+T(R) \psi_k (r) = e^{ik \cdot R} \psi_k(r)
 \end{equation*}
 
-#+beamer: \only<1>{
-#+call: make-hchain("-n 1 -k 0 --ny 0     ")
+#+call: make-hchain("-n 10 -k 5 --circle")
+
+#+attr_latex: :width 1.0\textwidth
+#+RESULTS:
+[[file:figures/hchain-base32-FVXCAMJQEAWWWIBVEAWS2Y3JOJRWYZIK.png]]
+
+#+beamer:\pause
+- So \( k \in (- \frac{\pi}{a}, \frac{\pi}{a} ] \)
+  and you get the \( s \) band! \textbf{First Brillouin Zone}
+
+** Use your chemical intuition for getting bandstructures
+
+*** Column 1
+    :properties:
+    :beamer_col: 0.5
+    :end:
+    
+#+begin_center
+#+attr_latex: :width 0.2\textwidth :center
+call_make-hchain("-n 1 -k 0 ") {{{results([[file:figures/hchain-base32-FVXCAMJAFVVSAMBABI.png]])}}}
+\( s \) orbital
+
+#+attr_latex: :width 0.7\textwidth :center
+call_make-hchain("-n 6 -k 0 ") {{{results([[file:figures/hchain-base32-FVXCAMJAFVVSAMBABI.png]])}}}
+\( k=0 \)
+
+#+attr_latex: :width 0.7\textwidth :center
+call_make-hchain("-n 6 -k 3 ") {{{results([[file:figures/hchain-base32-FVXCAMJAFVVSAMBABI.png]])}}}
+\( k=\frac{\pi}{a} \)
+#+end_center
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.5
+    :end:
+
+#+begin_center
+#+attr_latex: :width 0.2\textwidth :center
+call_make-hchain("-n 1 -k 0  --nx 1    ") {{{results([[file:figures/hchain-base32-FVXCAMJAFVVSAMBABI.png]])}}}
+\( p_x \) orbital
+
+#+attr_latex: :width 0.7\textwidth :center
+call_make-hchain("-n 6 -k 0  --nx 1    ") {{{results([[file:figures/hchain-base32-FVXCAMJAFVVSAMBABI.png]])}}}
+\( k=0 \)
+
+#+attr_latex: :width 0.7\textwidth :center
+call_make-hchain("-n 6 -k 3  --nx 1    ") {{{results([[file:figures/hchain-base32-FVXCAMJAFVVSAMBABI.png]])}}}
+\( k=\frac{\pi}{a} \)
+#+end_center
+
+** Use your chemical intuition for getting bandstructures II
+
+#+attr_latex: :width 0.1\textwidth :center
+call_make-hchain("-n 1 -k 0  --nx 1    ") {{{results([[file:figures/hchain-base32-FVXCAMJAFVVSAMBABI.png]])}}}
+#+begin_src gnuplot :file figures/band-structure.pdf
+unset tics
+set xlabel "k"
+set ylabel "E(k)"
+set xtics ("Γ" 0, "π/a" pi)
+plot -cos(x) title "s band" \
+   ,  cos(x) + 2.2 title "px band"
+#+end_src
 
 #+RESULTS:
-[[file:figures/hchain-base32-FVXCAMJAFVVSAMBAFUWW46JAGAQCAIBAEAFA.png]]
+[[file:figures/band-structure.pdf]]
 
-#+beamer: }
-#+beamer: \only<2>{
-#+call: make-hchain("-n 2 -k 0 --ny 0     ")
-
-#+RESULTS:
-[[file:figures/hchain-base32-FVXCAMRAFVVSAMBAFUWW46JAGAQCAIBAEAFA.png]]
-
-#+beamer: }
-#+beamer: \only<3>{
-#+call: make-hchain("-n 3 -k 0 --ny 0     ")
-
-#+RESULTS:
-[[file:figures/hchain-base32-FVXCAMZAFVVSAMBAFUWW46JAGAQCAIBAEAFA.png]]
-
-#+beamer: }
-#+beamer: \only<4>{
-#+call: make-hchain("-n 4 -k 0 --ny 0     ")
-
-#+RESULTS:
-[[file:figures/hchain-base32-FVXCANBAFVVSAMBAFUWW46JAGAQCAIBAEAFA.png]]
-
-#+beamer: }
-#+beamer: \only<5>{
-#+caption: asdf
-#+call: make-hchain("-n 5 -k 0 --ny 0     ")
-
-#+RESULTS:
-[[file:figures/hchain-base32-FVXCANJAFVVSAMBAFUWW46JAGAQCAIBAEAFA.png]]
-
-#+beamer: }
-
-
+#+attr_latex: :width 0.1\textwidth :center
+call_make-hchain("-n 1 -k 0  --nx 0    ") {{{results([[file:figures/hchain-base32-FVXCAMJAFVVSAMBABI.png]])}}}
 ** Defects and super-cells
 
 *** Column 1
@@ -209,7 +415,7 @@ Linear combination of atomic orbitals:
 
 
 
-\pause
+#+beamer:\pause
 - unit cell with a defect
 #+headers: :var n=2 repeat=1
 #+name: make-defect-in-lattice
@@ -235,7 +441,7 @@ if (repeat == 0) dot((n / 2 - 0.5, n/2 - 0.5), red);
 #+RESULTS: make-defect-in-lattice
 [[file:figures/defect-images.pdf]]
 
-\pause
+#+beamer:\pause
 - repeating it
 #+call: make-defect-in-lattice(n=6) :file figures/defect-images-6.pdf
 
@@ -249,7 +455,7 @@ if (repeat == 0) dot((n / 2 - 0.5, n/2 - 0.5), red);
     :beamer_col: 0.5
     :end:
 
-\pause
+#+beamer:\pause
 - Supercell
 #+call: make-defect-in-lattice(n=6, repeat=0) :file figures/defect-images-6-no-repeat.pdf
 
@@ -259,6 +465,11 @@ if (repeat == 0) dot((n / 2 - 0.5, n/2 - 0.5), red);
 [[file:figures/defect-images-6-no-repeat.pdf]]
 
 ** Quantum chemistry \approx \Gamma-point
+- $\Gamma$ point is with \( k = 0 \).
+- Integrals and orbitals can be chosen to be real valued.
+- Important for defect calculations.
+- Supercell calculations.
+
 * Ground-state Coupled-Cluster
 ** Exponential \textit{Ansatz}
 - One of the most successful theories in quantum chemistry
@@ -460,23 +671,201 @@ e^{\hat{T}}
 
 
 
-
 * ~CC4S~
-** Pseudo-potentials
+- Coupled-cluster for solids
 ** VASP
-** Our interface
+- Plane waves
+  \begin{equation*}
+    \psi_k (r) = \sum_G^{G_{\mathrm{max}}} C^{k}(G) e^{i G \cdot r}
+  \end{equation*}
+- Easier to describe delocalized electrons
+  - Core electrons hopefully well described by pseudo-potentials
+  - Projector-Augmented-Wave (PAW) in the case of VASP cite:Projector.augmeBlochl1994
+- One parameter \( G_{\mathrm{max}} \)
+
 ** Tensor frameworks
-* \(F\)-centers
+
+- Cyclops tensor framework
+  https://github.com/cyclops-community/ctf
+  cite:A.massively.parSolomo2014
+
+- Easily write tensor contractions massive parallelly
+  \begin{equation*}
+    r^{ab}_{ij}
+    = \sum_{cdkl}
+      t^{a {\color{red}c}}_{i {\color{red}k}}
+      V^{{\color{red}k } {\color{blue}l}   }_{{\color{red}c}  {\color{blue}d}}
+      t^{{\color{blue}d} b}_{{\color{blue}l} j}
+  \end{equation*}
+  turns into ~MPI~ C++ as
+  #+begin_src c++
+    r["abij"] = t["acik"] * v["klcd"] * t["dblj"];
+  #+end_src
+
+* \( F \)-centers
+
+** Introduction
+
+- Important for benchmarking and some practical applications.
+  - Bulk defects of materials affected by defects.
+  - Luminescence properties.
+  - Single photon emitters.
+  - Quantum computers.
+  - Simplest playground for excitations in solids.
+- Often described as molecules embedded in a solid.
+- \( \Gamma \)-point calculations.
+- Doubly cursed:
+  - Basis-set convergence (\(G_{\mathrm{max}} \to \infty\)): extrapolate!
+  - Finite-size convergence (cell \( \to \infty \)): extrapolate again! 
+    #+beamer:\pause
+    - Remember, we actually want to calculate an infinte molecule...
+
+
+** MgO
+- O vacancy
+
+  [[file:figures/mgo_geometry.pdf]]
+
+- \( s \)-like defect orbital with two trapped electrons.
+- \( p \)-like defect orbitals where excitations are made.
+- These orbitals is where physics happens
+  - If the excited orbitals do not hybridize /much/ with delocalized bulk
+    conduction band orbitals.
+
+
+** MgO: defect orbitals
+  [[file:figures/mgo_chg.pdf]]
+
+
+** Luminescence
+
+*** Column 1
+    :properties:
+    :beamer_col: 0.5
+    :end:
+   
+- CCSD Groundstate \( {}^1A_{\mathrm{CC}} \)
+- EOM-CCSD excited states \( {}^1T \) and \( {}^3T \)
+- Franck-condon process
+  - Absorption \( {}^1A_{\mathrm{CC}} \to {}^1T \)
+  - Structure relaxation
+  - Intersystem crossing (Singlet \to Triplet)
+  - Photoemission from \( ^3T \) to ground state
+
+
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.5
+    :end:
+
+#+attr_latex: :width 0.99\textwidth
+[[file:figures/mgo-multiplets.pdf]]
+[[file:figures/mgo_geometry.pdf]]
+
+** Extrapolation
+
+*** Column 1
+    :properties:
+    :beamer_col: 0.5
+    :end:
+
+
+- Big cells have to be used \approx 120 atoms and \approx 1000e.
+- No chance to correlate all electrons.
+- Choose physical active space (2 to 9 electrons)
+- Extrapolate with number of virtuals \( N_v \)
+- Extrapolate for various sizes of cell sizes
+  - Thermodynamical limit
+
+
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.5
+    :end:
+    
+#+attr_latex: :width 0.99\textwidth
+[[file:figures/mgo-basis-extrapolation-nblow-505-ignore-4.pdf]]
+
+** Some results
+
+
+\begin{tabular}{llll}
+    %
+    %
+\toprule
+System & Method & Absorption & Emission \\
+    %
+    %
+\midrule
+    %
+    %
+MgO & EOM-CCSD@HF                                           & 5.28   & 3.66  \\
+    & Exp.~\cite{ELECTRONIC.STRUWILSON1976}                 & 5.0    & 2.4   \\
+    & QMC.~\cite{PointDefectOperteki2013}                   & 5.0(1) & 3.8(1)\\
+    & CASPT2~\cite{OnTheAccuratesousa2001}                  & 5.44   & 4.09   \\
+    & $G_0W_0$@LDA0-BSE.~\cite{First.PrincipleRinke.2012}   & 4.95   & 3.4   \\
+    & $G_0W_0$@LDA0~\cite{First.PrincipleRinke.2012}        & 5.4    &       \\
+    %
+    %
+\midrule
+    %
+    %
+%\pause
+CaO & EOM-CCSD@HF                                        & 3.13   & 1.93 \\
+    & Exp.~\cite{LuminescenceSpbates1974,%
+                  HighTemperaturbates1975}                & 3.02   & 1.93 \\
+    & Exp.~\cite{ELECTRONIC.STRUWILSON1976}              & 3.1     & 2.05 -- 2.01\\
+    & TDDFT@B3LYP~\cite{OpticalAbsorptcarras2006}        & 3.52    & 2.1  \\
+    & $G_0W_0$@PBE~\cite{PredictionOfOtosoni2012}        & 3.20    &      \\
+    %
+    %
+\midrule
+    %
+    %
+%\pause
+SrO & EOM-CCSD@HF                          & 2.34 & 1.2\\
+    & Exp.\cite{ELECTRONIC.STRUWILSON1976} & 2.4  &    \\
+    %
+    %
+\bottomrule
+    %
+    %
+\end{tabular}
+
+
+** Future directions
+
+- More challenging defects
+- Better extrapolation schemes (/in preparation/)
+- Clearer picture of transitions including electron-phonon coupling.
+
 * Summary
 ** Summary
-** Bibliography
-bibliographystyle:unsrt
-bibliography:main.bib,~/Documents/papers/bibfile.bib
 ** Thank you
 #+begin_center
 Thank you!
 #+end_center
+
+#+attr_latex: :width 0.6\textwidth
 [[file:figures/group2019.png]]
+#+begin_center
+Andreas Grüneis, Nikolaos Masios, Thodoris Tsatsoulis, Felix Hummel,
+Andreas Irmler, Alejandro Gallo, Faruk Salihbegovic, Tobias Schäfer
+#+end_center
+
+#+begin_center
+#+attr_latex: :width 0.2\textwidth :center
+[[file:figures/tuwien.png]] [[file:figures/LOGO_ERC.jpg]]
+#+end_center
+
+** Bibliography
+   :properties:
+      :BEAMER_OPT: allowframebreaks
+   :end:
+bibliographystyle:unsrt
+bibliography:main.bib,~/Documents/papers/bibfile.bib
 * Scripts                                                          :noexport:
   :properties:
     :header-args: :comments both
