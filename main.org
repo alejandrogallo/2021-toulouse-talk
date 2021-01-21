@@ -81,6 +81,7 @@ cite:SolidsAndSurf1988Hoffmann
 \phi^{\mathrm{1s}}_{\color{red} 0} + \phi^{\mathrm{1s}}_{\color{red} 1}
 = e^{i {\color{red} 0} a k } \phi^{\mathrm{1s}}_{\color{red} 0}
 + e^{i {\color{red} 1} a k } \phi^{\mathrm{1s}}_{\color{red} 1}
+,
 \quad k = 0
 \end{equation*}
 where $a$ is H-H bond length
@@ -791,6 +792,7 @@ H|R\rangle &= E_R |R\rangle
 
 
 - Big cells have to be used \approx 120 atoms and \approx 1000e.
+- Correlate 2 to 9 electrons enough.
 - Extrapolate with number of virtuals \( N_v \)
 - Extrapolate for various sizes of cell sizes
 
