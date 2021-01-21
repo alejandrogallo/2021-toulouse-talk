@@ -1,17 +1,18 @@
 #+title: Equation-of-motion coupled-cluster for defects in solids
 #+author: Alejandro Gallo
-#+date: Toulouse, 21-01-2021 
+#+date: LCPQ Seminar, Toulouse, 21-01-2021 
 #+latex_header: \usepackage{xcolor}
 #+latex_header: \usepackage{booktabs}
-#+OPTIONS: H:2 toc:t t:nil
+#+BEAMER_THEME: metropolis
+#+OPTIONS: H:2 toc:nil t:nil
 #+OPTIONS: TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
 
 * Presentation
-** Who are we
+** Who are we?
 
 *** Column 1
     :properties:
-    :beamer_col: 0.5
+    :beamer_col: 0.6
     :end:
 
 - Andreas Grüneis group.
@@ -27,7 +28,7 @@
 
 *** Column 2
     :properties:
-    :beamer_col: 0.5
+    :beamer_col: 0.4
     :end:
 
 [[file:figures/tuwien.png]]
@@ -48,6 +49,7 @@
 - \( k \)-point sampling
 - Bloch's theorem
 - Supercell approach
+- ...
 
 
 
@@ -94,7 +96,8 @@ where $a$ is H-H bond length
 \begin{equation*}
 \phi^{\mathrm{1s}}_{\color{red} 0} - \phi^{\mathrm{1s}}_{\color{red} 1}
 = e^{i {\color{red} 0} a k } \phi^{\mathrm{1s}}_{\color{red} 0}
-- e^{i {\color{red} 1} a k } \phi^{\mathrm{1s}}_{\color{red} 1}
++ e^{i {\color{red} 1} a k } \phi^{\mathrm{1s}}_{\color{red} 1}
+,
 \quad k = \frac{\pi}{a}
 \end{equation*}
 
@@ -108,6 +111,7 @@ where $a$ is H-H bond length
 \begin{equation*}
   \sum_{\color{red} j} \phi^{\mathrm{1s}}_{\color{red} j}
 = \sum_{\color{red} j} e^{i{\color{red} j} a k }\phi^{\mathrm{1s}}_{\color{red} j}
+,
 \quad k = 0
 \end{equation*}
 
@@ -122,6 +126,7 @@ where $a$ is H-H bond length
 \begin{equation*}
   \sum_{\color{red} j} (-1)^{\color{red} j} \phi^{\mathrm{1s}}_{\color{red} j}
 = \sum_{\color{red} j} e^{i{\color{red} j} a k }\phi^{\mathrm{1s}}_{\color{red} j}
+,
 \quad k = \frac{\pi}{a}
 \end{equation*}
 
@@ -136,6 +141,7 @@ where $a$ is H-H bond length
 \begin{equation*}
   \sum_{\color{red} j} (-1)^{\color{red} j} \phi^{\mathrm{1s}}_{\color{red} j}
 = \sum_{\color{red} j} e^{i{\color{red} j} a k }\phi^{\mathrm{1s}}_{\color{red} j}
+,
 \quad k = \frac{\pi}{2a} \end{equation*}
 
 #+call: make-hchain("-n 6 -k 1.5")
@@ -241,7 +247,7 @@ for (int j=0; j<n; ++j) {
     orbitals are eigenvectors of $\hat T (R)$ for all $R\in \mathcal{B}$
   - Bloch's theorem:
     \[
-       \hat T(R) \psi = e^{i R \cdot k} \psi
+       \hat T(R) \psi = e^{i R \cdot k} \psi,
        \quad k \in \mathbb{R}^3
     \]
   - Bloch orbitals $\{ \psi_k \}$ (symmetry adapted)
@@ -321,7 +327,7 @@ draw((0, 0) -- (3, 1), black, Arrow);
 
 
 #+beamer:\pause
-- Attention! Change \( k \to n \frac{\pi}{a} + k \) for all \( n\in \mathbb{Z} \)
+- Attention! Change \( k \to \frac{2\pi}{a} n + k \) for all \( n\in \mathbb{Z} \)
   and you get the same.
 
     
@@ -405,6 +411,7 @@ plot -cos(x) title "s band" \
 
 #+attr_latex: :width 0.1\textwidth :center
 call_make-hchain("-n 1 -k 0  --nx 0    ") {{{results([[file:figures/hchain-base32-FVXCAMJAFVVSAMBABI.png]])}}}
+
 ** Defects and super-cells
 
 *** Column 1
@@ -456,7 +463,7 @@ if (repeat == 0) dot((n / 2 - 0.5, n/2 - 0.5), red);
     :end:
 
 #+beamer:\pause
-- Supercell
+- supercell
 #+call: make-defect-in-lattice(n=6, repeat=0) :file figures/defect-images-6-no-repeat.pdf
 
 #+attr_org: :width 300px
@@ -467,8 +474,11 @@ if (repeat == 0) dot((n / 2 - 0.5, n/2 - 0.5), red);
 ** Quantum chemistry \approx \Gamma-point
 - $\Gamma$ point is with \( k = 0 \).
 - Integrals and orbitals can be chosen to be real valued.
-- Important for defect calculations.
 - Supercell calculations.
+  - Important for defect calculations.
+  - Periodic boundary conditions
+    - Implicit interaction from defect with its periodic image
+    - Increase the size of the supercell until no such interaction is important
 
 * Ground-state Coupled-Cluster
 ** Exponential \textit{Ansatz}
@@ -508,7 +518,7 @@ e^{\hat{T}}
 
 ** Size-extensivity
 
-- A size-extensive method provides results that scale linearly with
+- A size-extensive method provides total energies that scale linearly with
   the size of the system.
 - Dyson proved that matter is stable
   [[cite:Stability.of.MaFreema1967,Stability.of.MaLenard1968][Dyson 1967-68]]
@@ -520,7 +530,7 @@ e^{\hat{T}}
   energy \textcolor{red}{by increasing} the size of the system.
   #+end_quote
 
-** CCSD equations
+** CCSD equations                                                  :noexport:
 - The Schrödinger equation is non-linear now
   \begin{equation*}
   \hat H e^{\hat T} |0\rangle = E_{\mathrm{CC}} e^{\hat T}|0\rangle
@@ -567,6 +577,14 @@ e^{\hat{T}}
 - Typical scaling $\mathcal{O}(N^6)$
 * Equation-of-motion Coupled-cluster
 ** In a nutshell
+
+*** Column 1
+    :properties:
+    :beamer_col: 0.5
+    :end:
+    
+
+
 #+header: :file figures/eom-nutshell.pdf :border 1em
 #+header: :packages '(("" "tikz")) :cache yes
 #+begin_src latex :results file raw
@@ -580,42 +598,54 @@ e^{\hat{T}}
   \node[:rect                   ] (H) {$\hat H$};
   \node[:circle, red, right of=H] (T) {$\hat T$};
   \node[:rect, blue, below of=T] (ST) {$\bar H$};
-  \node[:rect, blue, right of=ST] (CI) {$\{\hat R, E_R\}$};
+  \node[:rect, blue, below of=ST] (CI) {$\{\hat R, E_R\}$};
   \draw[->] (H) edge node [above] {CC} (T);
-  \draw[->] (T) edge (ST);
-  \draw[->] (ST) edge node [above] {CI} (CI);
+  \draw[->] (T) edge  node [left] {$e^{-\hat T} \hat H e^{\hat T}$} (ST);
+  \draw[->] (ST) edge node [right] {CI} (CI);
   \end{tikzpicture}
   #+end_src
 
 #+attr_org: :width 300px
-#+attr_latex: :width 0.6\textwidth
-#+RESULTS[91fed7feacf53a3bad8f877a6e70e23f8048ecd8]:
+#+attr_latex: :width 1\textwidth
+#+RESULTS[6d8523f933caff237afd462c8c7f30a059f1a71d]:
 [[file:figures/eom-nutshell.pdf]]
 
+*** Column 2
+    :properties:
+    :beamer_col: 0.5
+    :end:
 #+beamer:\pause
 - Excited states
-  \begin{equation*}
-    \hat{R} = r_{0}
-            + \sum_{a,i} r^a_i \hat{a}^{\dagger}_{a}\hat{a}_{i}
-            + \frac{1}{4}
+  \begin{align*}
+    \hat{R} &= r_{0}
+            \\
+            &+ \sum_{a,i} r^a_i \hat{a}^{\dagger}_{a}\hat{a}_{i}
+            \\
+            &+ \frac{1}{4}
               \sum_{a,b,i,j}
                 r^{ab}_{ij}
                 \hat{a}^{\dagger}_{a} \hat{a}^{\dagger}_{b}
                 \hat{a}_{j}         \hat{a}_{i}
-            + \ldots
-  \end{equation*}
-\begin{equation*}
-|R\rangle = \hat R e^{\hat T} |0\rangle
-\end{equation*}
+            \\
+            &+ \ldots
+  \end{align*}
+\begin{align*}
+|R\rangle &= \hat R e^{\hat T} |0\rangle
+\\
+H|R\rangle &= E_R |R\rangle
+\end{align*}
 #+beamer:\pause
-- So it's just CI right? @@beamer:\pause@@(Yes and no!)
+- So it's just CI, right?
   
 ** Why not just (truncated) CI?
+   :properties:
+      :BEAMER_OPT: allowframebreaks
+   :end:
 
 - Dressing a Hamiltonian has many consequences
-  - Transocorrelated hamiltonians (Jastrow)
+  - Transcorrelated hamiltonians (Jastrow)
   - Effective Hamiltonians in multi-reference
-  - In the extreme case, even you can understand the $\hat T_{\mathrm{FCC}}$ as a dressing
+  - In the extreme case, you can understand the $\hat T_{\mathrm{FCC}}$ as a dressing
     that renders the single-reference determinant \( |0\rangle \)
     as having the exact many-body energy
     \begin{equation*}
@@ -671,41 +701,12 @@ e^{\hat{T}}
 
 
 
-* ~CC4S~
-- Coupled-cluster for solids
-** VASP
-- Plane waves
-  \begin{equation*}
-    \psi_k (r) = \sum_G^{G_{\mathrm{max}}} C^{k}(G) e^{i G \cdot r}
-  \end{equation*}
-- Easier to describe delocalized electrons
-  - Core electrons hopefully well described by pseudo-potentials
-  - Projector-Augmented-Wave (PAW) in the case of VASP cite:Projector.augmeBlochl1994
-- One parameter \( G_{\mathrm{max}} \)
-
-** Tensor frameworks
-
-- Cyclops tensor framework
-  https://github.com/cyclops-community/ctf
-  cite:A.massively.parSolomo2014
-
-- Easily write tensor contractions massive parallelly
-  \begin{equation*}
-    r^{ab}_{ij}
-    = \sum_{cdkl}
-      t^{a {\color{red}c}}_{i {\color{red}k}}
-      V^{{\color{red}k } {\color{blue}l}   }_{{\color{red}c}  {\color{blue}d}}
-      t^{{\color{blue}d} b}_{{\color{blue}l} j}
-  \end{equation*}
-  turns into ~MPI~ C++ as
-  #+begin_src c++
-    r["abij"] = t["acik"] * v["klcd"] * t["dblj"];
-  #+end_src
-
 * \( F \)-centers
 
 ** Introduction
 
+- Color centers (german: \textcolor{red}{F}arbzentren)
+- Vacancies, di-vacancies, trapped electrons \ldots
 - Important for benchmarking and some practical applications.
   - Bulk defects of materials affected by defects.
   - Luminescence properties.
@@ -715,15 +716,19 @@ e^{\hat{T}}
 - Often described as molecules embedded in a solid.
 - \( \Gamma \)-point calculations.
 - Doubly cursed:
-  - Basis-set convergence (\(G_{\mathrm{max}} \to \infty\)): extrapolate!
+  - Basis-set convergence
+    - \(G_{\mathrm{max}} \to \infty\): extrapolate!
+    - \(N_v \to \infty\): extrapolate!
   - Finite-size convergence (cell \( \to \infty \)): extrapolate again! 
     #+beamer:\pause
-    - Remember, we actually want to calculate an infinte molecule...
+    - Remember, PBC
+      \Rightarrow defect-defect interaction
 
 
 ** MgO
 - O vacancy
 
+  #+attr_latex: :width 0.5\textwidth
   [[file:figures/mgo_geometry.pdf]]
 
 - \( s \)-like defect orbital with two trapped electrons.
@@ -734,7 +739,21 @@ e^{\hat{T}}
 
 
 ** MgO: defect orbitals
-  [[file:figures/mgo_chg.pdf]]
+
+*** Column 1
+    :properties:
+    :beamer_col: 0.3
+    :end:
+    
+- No chance to correlate all electrons.
+- Choose physical active space (2 to 9 electrons)
+
+*** Column 2
+    :properties:
+    :beamer_col: 0.7
+    :end:
+
+[[file:figures/mgo_chg.pdf]]
 
 
 ** Luminescence
@@ -772,11 +791,8 @@ e^{\hat{T}}
 
 
 - Big cells have to be used \approx 120 atoms and \approx 1000e.
-- No chance to correlate all electrons.
-- Choose physical active space (2 to 9 electrons)
 - Extrapolate with number of virtuals \( N_v \)
 - Extrapolate for various sizes of cell sizes
-  - Thermodynamical limit
 
 
 
@@ -801,21 +817,20 @@ System & Method & Absorption & Emission \\
 \midrule
     %
     %
-MgO & EOM-CCSD@HF                                           & 5.28   & 3.66  \\
+MgO & \textcolor{orange}{EOM-CCSD@HF}                       & 5.28   & 3.66  \\
     & Exp.~\cite{ELECTRONIC.STRUWILSON1976}                 & 5.0    & 2.4   \\
     & QMC.~\cite{PointDefectOperteki2013}                   & 5.0(1) & 3.8(1)\\
     & CASPT2~\cite{OnTheAccuratesousa2001}                  & 5.44   & 4.09   \\
     & $G_0W_0$@LDA0-BSE.~\cite{First.PrincipleRinke.2012}   & 4.95   & 3.4   \\
-    & $G_0W_0$@LDA0~\cite{First.PrincipleRinke.2012}        & 5.4    &       \\
     %
     %
 \midrule
     %
     %
 %\pause
-CaO & EOM-CCSD@HF                                        & 3.13   & 1.93 \\
+CaO & \textcolor{orange}{EOM-CCSD@HF}                    & 3.13   & 1.93 \\
     & Exp.~\cite{LuminescenceSpbates1974,%
-                  HighTemperaturbates1975}                & 3.02   & 1.93 \\
+                  HighTemperaturbates1975}               & 3.02   & 1.93 \\
     & Exp.~\cite{ELECTRONIC.STRUWILSON1976}              & 3.1     & 2.05 -- 2.01\\
     & TDDFT@B3LYP~\cite{OpticalAbsorptcarras2006}        & 3.52    & 2.1  \\
     & $G_0W_0$@PBE~\cite{PredictionOfOtosoni2012}        & 3.20    &      \\
@@ -825,7 +840,7 @@ CaO & EOM-CCSD@HF                                        & 3.13   & 1.93 \\
     %
     %
 %\pause
-SrO & EOM-CCSD@HF                          & 2.34 & 1.2\\
+SrO & \textcolor{orange}{EOM-CCSD@HF}             & 2.34 & 1.2\\
     & Exp.\cite{ELECTRONIC.STRUWILSON1976} & 2.4  &    \\
     %
     %
@@ -842,7 +857,6 @@ SrO & EOM-CCSD@HF                          & 2.34 & 1.2\\
 - Clearer picture of transitions including electron-phonon coupling.
 
 * Summary
-** Summary
 ** Thank you
 #+begin_center
 Thank you!
@@ -866,6 +880,36 @@ Andreas Irmler, Alejandro Gallo, Faruk Salihbegovic, Tobias Schäfer
    :end:
 bibliographystyle:unsrt
 bibliography:main.bib,~/Documents/papers/bibfile.bib
+* ~CC4S~
+** VASP
+- Plane waves
+  \begin{equation*}
+    \psi_k (r) = \sum_G^{G_{\mathrm{max}}} C^{k}(G) e^{i G \cdot r}
+  \end{equation*}
+- Easier to describe delocalized electrons
+  - Core electrons hopefully well described by pseudo-potentials
+  - Projector-Augmented-Wave (PAW) in the case of VASP cite:Projector.augmeBlochl1994
+- One parameter \( G_{\mathrm{max}} \)
+
+** Tensor frameworks
+
+- Cyclops tensor framework
+  https://github.com/cyclops-community/ctf
+  cite:A.massively.parSolomo2014
+
+- Easily write tensor contractions massive parallelly
+  \begin{equation*}
+    r^{ab}_{ij}
+    = \sum_{cdkl}
+      t^{a {\color{red}c}}_{i {\color{red}k}}
+      V^{{\color{red}k } {\color{blue}l}   }_{{\color{red}c}  {\color{blue}d}}
+      t^{{\color{blue}d} b}_{{\color{blue}l} j}
+  \end{equation*}
+  turns into ~MPI~ C++ as
+  #+begin_src c++
+    r["abij"] = t["acik"] * v["klcd"] * t["dblj"];
+  #+end_src
+
 * Scripts                                                          :noexport:
   :properties:
     :header-args: :comments both
